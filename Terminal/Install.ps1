@@ -1,18 +1,18 @@
-[CmdletBinding(DefaultParameterSetName='Granular')]
+[CmdletBinding(DefaultParameterSetName = 'Granular')]
 Param(
-    [Parameter(ParameterSetName='All')]
+    [Parameter(ParameterSetName = 'All')]
     [switch]$All,
 
-    [Parameter(ParameterSetName='Granular')]
+    [Parameter(ParameterSetName = 'Granular')]
     [switch]$PowerShellProfile,
 
-    [Parameter(ParameterSetName='Granular')]
+    [Parameter(ParameterSetName = 'Granular')]
     [switch]$Fonts,
 
-    [Parameter(ParameterSetName='Granular')]
+    [Parameter(ParameterSetName = 'Granular')]
     [switch]$WindowsTerminalSettings,
 
-    [Parameter(ParameterSetName='Granular')]
+    [Parameter(ParameterSetName = 'Granular')]
     [switch]$OhMyPosh,
 
     [switch]$Force
@@ -23,43 +23,42 @@ Param(
 
 # Nothing selected? Show help screen.
 if (!$PowerShellProfile.IsPresent -and !$Fonts.IsPresent -and !$WindowsTerminalSettings.IsPresent `
-    -and !$OhMyPosh.IsPresent -and !$All.IsPresent)
-{
+        -and !$OhMyPosh.IsPresent -and !$All.IsPresent) {
     Get-Help .\Install.ps1
     Exit;
 }
 
 # Powershell
+# Profiles are stored in OneDrive, with symlinks from the actual profile location.
+function AddSymlink([string]$path, [string]$filename) {
+    $profileFile = Join-Path ([System.IO.Path]::GetDirectoryName($profile)) $filename
+    if (!(Test-Path $profileFile) -or $Force.IsPresent) {
+        Write-Host "Adding Powershell profile symlink for '$filename'..."
+        $sourceFile = Join-Path $env:OneDriveConsumer 'Documents' 'Powershell Profiles' $filename
+        New-Item -ItemType SymbolicLink -Path $profileFile -Target $sourceFile -Force | Out-Null
+    }
+    else {
+        Write-Host "PowerShell profile '$filename' already exists."
+        Write-Host 'Use the -Force switch to overwrite.';
+    }
+}
 
 if ($All.IsPresent -or $PowerShellProfile.IsPresent) {
-    if (!(Test-Path $PROFILE) -or $Force.IsPresent) {
-        # Update PowerShell profile
-        Write-Host "Adding PowerShell profile...";
-        $MachinePath = (Get-Item (Join-Path $PSScriptRoot "../../")).FullName
-        $PowerShellProfileTemplatePath = Join-Path $PSScriptRoot "PowerShell/Profile.template";
-        $PowerShellProfilePath = (Join-Path $PSScriptRoot "PowerShell/Roaming.ps1");
-        $PowerShellPromptPath = (Join-Path $PSScriptRoot "PowerShell/Prompt.ps1");
-        $PowerShellLocalProfilePath = Join-Path (Get-Item $PROFILE).Directory.FullName "LocalProfile.ps1"
-        Copy-Item -Path $PowerShellProfileTemplatePath -Destination $PROFILE;
-        # Replace placeholder values
-        (Get-Content -path $PROFILE -Raw) -Replace '<<MACHINE>>', $MachinePath | Set-Content -Path $PROFILE
-        (Get-Content -path $PROFILE -Raw) -Replace '<<PROFILE>>', $PowerShellProfilePath | Set-Content -Path $PROFILE
-        (Get-Content -path $PROFILE -Raw) -Replace '<<PROMPT>>', $PowerShellPromptPath | Set-Content -Path $PROFILE
-        (Get-Content -path $PROFILE -Raw) -Replace '<<LOCALPROFILE>>', $PowerShellLocalProfilePath | Set-Content -Path $PROFILE
-        (Get-Content -path $PROFILE -Raw) -Replace '<<SOURCELOCATION>>', "$($Global:SourceLocation)" | Set-Content -Path $PROFILE
-        (Get-Content -path $PROFILE -Raw) -Replace '<<AZURELOCATION>>', "$($Global:AzureDevOpsSourceLocation)" | Set-Content -Path $PROFILE
-        (Get-Content -path $PROFILE -Raw) -Replace '<<BITBUCKETLOCATION>>', "$($Global:BitBucketSourceLocation)" | Set-Content -Path $PROFILE
-        (Get-Content -path $PROFILE -Raw) -Replace '<<GITLABLOCATION>>', "$($Global:GitLabSourceLocation)" | Set-Content -Path $PROFILE
-    } else {
-        Write-Host "PowerShell profile already exist.";
-        Write-Host "Use the -Force switch to overwrite.";
+    # Check whether onedrive consumer is installed & signed in yet
+    if (!(Test-Path $env:OneDriveConsumer)) {
+        Write-Host 'OneDrive (consumer version) must be installed and signed in before Powershell profiles can be created.'
+    }
+    else {
+        AddSymlink -filename 'Microsoft.PowerShell_profile.ps1'
+        AddSymlink -filename 'Microsoft.VSCode_profile.ps1'
+        AddSymlink -filename 'PSReadlineProfile.ps1'
+        AddSymlink -filename '.oh-my-posh.json'
     }
 }
 
 # Windows Terminal
-
 if ($All.IsPresent -or $WindowsTerminalSettings.IsPresent) {
-    Assert-Administrator -FailMessage 'Installing Windows Terminal settings requires administrator privileges.';
+    Assert-Administrator -FailMessage 'Installing Windows Terminal settings requires administrator privileges.'
 
     $TerminalLocalState = Join-Path $Env:LOCALAPPDATA 'Packages' 'Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe' 'LocalState'
     if (!(Test-Path -Path $TerminalLocalState -PathType Container)) {
@@ -69,7 +68,7 @@ if ($All.IsPresent -or $WindowsTerminalSettings.IsPresent) {
     # Create symlink to Windows Terminal settings
     $TerminalSettingsTarget = Join-Path $PSScriptRoot '../Config/windows_terminal.json'
     $TerminalSettingsPath = Join-Path $TerminalLocalState 'settings.json'
-    if(Test-Path $TerminalSettingsPath) {
+    if (Test-Path $TerminalSettingsPath) {
         Remove-Item -Path $TerminalSettingsPath
     }
 
@@ -81,42 +80,11 @@ if ($All.IsPresent -or $WindowsTerminalSettings.IsPresent) {
 }
 
 # Fonts
-
-if($All.IsPresent -or $Fonts.IsPresent) {
+if ($All.IsPresent -or $Fonts.IsPresent) {
     # Install RobotoMono font
-    Write-Host "Installing RobotoMono nerd font..."
-    $FontPath = Join-Path $PWD "Fonts/CaskaydiaCoveMono.ttf";
-    Install-Font -FontPath $FontPath;
+    Write-Host "Installing Cascadia Code and  RobotoMono nerd fonts..."
+    $FontPath = Join-Path $PWD "Fonts"
+    Install-Font -FontPath "$FontPath\CaskaydiaCoveMono.ttf"
+    Install-Font -FontPath "$FontPath\RobotoMono.ttf"
 }
 
-
-# Oh-my-posh
-
-if($All.IsPresent -or $OhMyPosh.IsPresent) {
-    $OhMyPoshPath = "$env:LOCALAPPDATA\Oh-My-Posh"
-    $OhMyPoshExe = Join-Path $OhMyPoshPath "oh-my-posh.exe"
-
-    # Download?
-    if(!(Test-Path $OhMyPoshExe) -or $Force.IsPresent) {
-        Write-Host "Downloading Oh-My-Posh..."
-        New-Item -Path $env:LOCALAPPDATA\Oh-My-Posh -ItemType Directory -ErrorAction Ignore | Out-Null
-
-        if(Test-Path $OhMyPoshExe) {
-            Remove-Item $OhMyPoshExe | Out-Null
-        }
-
-        Invoke-Webrequest "https://github.com/JanDeDobbeleer/oh-my-posh3/releases/latest/download/posh-windows-amd64.exe" -OutFile $OhMyPoshExe
-
-    } else {
-        Write-Debug "Oh-My-Posh already installed"
-    }
-
-    # Add to PATH?
-    $CurrentPath = [System.Environment]::GetEnvironmentVariable("PATH", "User");
-    if(!($CurrentPath -like "*$OhMyPoshPath*")) {
-        Write-Host "Setting PATH variable..."
-        [Environment]::SetEnvironmentVariable("PATH", "$CurrentPath;$OhMyPoshPath", "User")
-    } else {
-        Write-Debug "PATH variable already set"
-    }
-}

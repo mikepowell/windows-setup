@@ -16,7 +16,7 @@ if (!$Prereqs.IsPresent -and !$Ubuntu.IsPresent -and !$Apps.IsPresent)
 }
 
 # Load some utilities
-. (Join-Path $PSScriptRoot "./Utilities/Utilities.ps1")
+. (Join-Path $PSScriptRoot "Utilities.ps1")
 
 # Assert that we're running as administrators
 Assert-Administrator -FailMessage "This script must be run as administrator.";

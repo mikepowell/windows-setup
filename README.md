@@ -9,37 +9,61 @@ inspiration for your own configurations.
 > will most likely make you sad and/or change your
 > computer settings to something that you don't want.
 
+## Manual app installation
+
+Some apps still have to be installed manually (e.g. Microsoft Store apps). The ones I use
+often are listed here for reference:
+
+* [Windows Terminal Preview](https://www.microsoft.com/en-us/p/windows-terminal-preview/9n8g5rfz9xk3)
+* [Microsoft To Do](https://www.microsoft.com/en-us/p/microsoft-to-do-lists-tasks-reminders/9nblggh5r558)
+
 ## Windows configuration
 
-It's recommended to run this in two steps.
-PowerShell must be launched as administrator.
+### 1. Sign in to OneDrive
 
-### 1. Set execution policy
+This configuration expects Powershell profiles to be stored in OneDrive Consumer,
+so make sure you're signed in to the OneDrive sync client.
 
-Launch PowerShell as administrator and run the following command.
+As for the Powershell modules folder (in the user's "My Documents" library),
+I've never been able to make it work well across multiple machines with OneDrive,
+so I recommend *not* having the sync client automatically redirect the My Documents
+folder to OneDrive. The downside is that you'll need to be vigilant and not just
+store other documents in the default "My Documents" if you want them backed up to OneDrive.
+
+### 2. Set Powershell execution policy
+
+Launch Powershell as administrator and run the following command.
 
 ```powershell
 > Set-ExecutionPolicy RemoteSigned
 ```
 
-### 2. Install prereqs
+### 3. Install Chocolatey
 
-There are some things that require a restart to work correctly,
-so start by installing this.
-
-```powershell
-> ./Install.ps1 -Prereqs
-```
-
-After prereqs are installed, restart the computer.
-If the script asks you if you want to restart the computer,
-do that, and run the script again after reboot.
-
-### 3. Install applications and/or Ubuntu
+To download these scripts at all, you'll first need Git installed, and since Chocolatey is
+required for the scripts you might as well install it manually now. Run the following in
+the same admin Powershell console.
 
 ```powershell
-> ./Install.ps1 -Apps -Ubuntu
+> [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+> iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 ```
+
+### 4. Install Git for Windows
+
+```powershell
+> choco install git
+```
+
+### 5. Clone this repository
+
+```powershell
+> git clone https://github.com/mikepowell/windows-setup.git
+```
+
+### 6. Run other scripts
+
+More info to come later after the scripts are more finished.
 
 ## Acknowledgement
 

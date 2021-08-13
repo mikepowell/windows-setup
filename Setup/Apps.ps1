@@ -1,37 +1,38 @@
-# Disable UAC (temporarily)
-Disable-UAC
+# Load some utilities
+. (Join-Path $PSScriptRoot "..\Utilities.ps1")
 
-# Workaround choco / boxstarter path too long error
-# https://github.com/chocolatey/boxstarter/issues/241
-$ChocoCachePath = "$env:USERPROFILE\AppData\Local\Temp\chocolatey"
-New-Item -Path $ChocoCachePath -ItemType Directory -Force
+# This script must be run as admin
+Assert-Administrator
+
+# It also must be run from PS 5.1, not core.
+if ($PSVersionTable.PSEdition -eq 'Core') {
+  throw 'This script does not support PowerShell Core, it must be run from a PowerShell 5.1 console.'
+}
 
 # Install applications
+choco upgrade --yes powershell-core
+choco upgrade --yes discord
+choco upgrade --yes powertoys
+choco upgrade --yes git
+choco upgrade --yes 7zip
+choco upgrade --yes ripgrep
+choco upgrade --yes gsudo
+choco upgrade --yes nugetpackageexplorer
+choco upgrade --yes docker-for-windows
+choco upgrade --yes sysinternals
+choco upgrade --yes nodejs
+choco upgrade --yes curl
+choco upgrade --yes vscode
+choco upgrade --yes dotpeek --pre
+choco upgrade --yes beyondcompare
+choco upgrade --yes rdm
+choco upgrade --yes dotnet-sdk
 
-choco upgrade --cache="$ChocoCachePath" --yes discord
-choco upgrade --cache="$ChocoCachePath" --yes powertoys
-choco upgrade --cache="$ChocoCachePath" --yes git
-choco upgrade --cache="$ChocoCachePath" --yes 7zip
-choco upgrade --cache="$ChocoCachePath" --yes powershell-core
-choco upgrade --cache="$ChocoCachePath" --yes ripgrep
-choco upgrade --cache="$ChocoCachePath" --yes gsudo
-choco upgrade --cache="$ChocoCachePath" --yes nugetpackageexplorer
-choco upgrade --cache="$ChocoCachePath" --yes docker-for-windows
-choco upgrade --cache="$ChocoCachePath" --yes sysinternals
-choco upgrade --cache="$ChocoCachePath" --yes nodejs
-choco upgrade --cache="$ChocoCachePath" --yes curl
-choco upgrade --cache="$ChocoCachePath" --yes vscode
-choco upgrade --cache="$ChocoCachePath" --yes dotpeek --pre
-choco upgrade --cache="$ChocoCachePath" --yes beyondcompare
-choco upgrade --cache="$ChocoCachePath" --yes rdm
-choco upgrade --cache="$ChocoCachePath" --yes dotnet-sdk
+# Windows features that are kind of like apps
+choco install TelnetClient -source WindowsFeatures
 
 # Uninstall bloatware
 Get-AppxPackage *Autodesk* | Remove-AppxPackage
 Get-AppxPackage *BubbleWitch* | Remove-AppxPackage
 Get-AppxPackage *CandyCrush* | Remove-AppxPackage
 Get-AppxPackage Microsoft.SkypeApp | Remove-AppxPackage
-
-# Restore Temporary Settings
-Enable-UAC
-Enable-MicrosoftUpdate

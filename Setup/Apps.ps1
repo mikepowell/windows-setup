@@ -27,6 +27,7 @@ choco upgrade --yes dotpeek --pre
 choco upgrade --yes beyondcompare
 choco upgrade --yes rdm
 choco upgrade --yes dotnet-sdk
+choco upgrade --yes logfusion
 
 # Windows features that are kind of like apps
 choco install TelnetClient -source WindowsFeatures

@@ -6,7 +6,8 @@ Assert-Administrator
 
 # It also must be run from PS 5.1, not core.
 if ($PSVersionTable.PSEdition -eq 'Core') {
-  throw 'This script does not support PowerShell Core, it must be run from a PowerShell 5.1 console.'
+  powershell.exe -NoProfile -File $MyInvocation.MyCommand.Path
+  return
 }
 
 # Install applications
@@ -28,9 +29,17 @@ choco upgrade --yes beyondcompare
 choco upgrade --yes rdm
 choco upgrade --yes dotnet-sdk
 choco upgrade --yes logfusion
+choco upgrade --yes fiddler
 
 # Windows features that are kind of like apps
-choco install TelnetClient -source WindowsFeatures
+Write-Host
+if (!(Get-WindowsOptionalFeature -FeatureName TelnetClient -Online)) {
+  Write-Host 'Installing telnet client...'
+  choco install TelnetClient -source WindowsFeatures
+}
+else {
+  Write-Host 'Telnet client already installed, skipping.'
+}
 
 # Uninstall bloatware
 Get-AppxPackage *Autodesk* | Remove-AppxPackage

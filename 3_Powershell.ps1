@@ -45,4 +45,7 @@ else {
   AddSymlink -path "$pwshProfileDir\.oh-my-posh.json"
 }
 
-
+# Install modules used in my profile
+Install-Module -Name oh-my-posh
+Install-Module -Name posh-git
+Install-Module -Name Terminal-Icons

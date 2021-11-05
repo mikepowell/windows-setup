@@ -9,20 +9,24 @@ inspiration for your own configurations.
 > will most likely make you sad and/or change your
 > computer settings to something that you don't want.
 
-## Manual app installation
+## Store app installation
 
-Some apps still have to be installed manually (e.g. Microsoft Store apps). The ones I use
+Some apps still have to be (or should be) installed from the Microsoft Store. The ones I use
 often are listed here for reference:
 
-* [Windows Terminal Preview](https://www.microsoft.com/en-us/p/windows-terminal-preview/9n8g5rfz9xk3)
-* [Microsoft To Do](https://www.microsoft.com/en-us/p/microsoft-to-do-lists-tasks-reminders/9nblggh5r558)
+* [Windows Terminal Preview](https://www.microsoft.com/store/productId/9N8G5RFZ9XK3)
+* [Microsoft To Do](https://www.microsoft.com/store/productId/9NBLGGH5R558)
+* [Python](https://www.microsoft.com/store/productId/9P7QFQMJRFP7)
+* [Sysinternals Suite](https://www.microsoft.com/store/productId/9P7KNL5RWT25)
+* [paint.net](https://www.microsoft.com/store/productId/9NBHCS1LX4R0)
+* [Inkscape](https://www.microsoft.com/store/productId/9PD9BHGLFC7H)
 
 ## Windows configuration
 
 ### 1. Sign in to OneDrive
 
 This configuration expects Powershell profiles to be stored in OneDrive Consumer,
-so make sure you're signed in to the OneDrive sync client.
+so make sure you're signed in to the OneDrive sync client with a personal Microsoft account.
 
 As for the Powershell modules folder (in the user's "My Documents" library),
 I've never been able to make it work well across multiple machines with OneDrive,

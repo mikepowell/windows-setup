@@ -1,5 +1,5 @@
 # Load some utilities
-. (Join-Path $PSScriptRoot "..\Utilities.ps1")
+. (Join-Path $PSScriptRoot "Utilities.ps1")
 
 # This script must be run as admin
 Assert-Administrator
@@ -11,20 +11,16 @@ if ($PSVersionTable.PSEdition -eq 'Core') {
 }
 
 # Install applications
+choco upgrade --yes cascadiacodepl
 choco upgrade --yes powershell-core
 choco upgrade --yes discord
 choco upgrade --yes powertoys
-choco upgrade --yes git
 choco upgrade --yes 7zip
-choco upgrade --yes ripgrep
 choco upgrade --yes gsudo
-choco upgrade --yes nugetpackageexplorer
-choco upgrade --yes docker-for-windows
 choco upgrade --yes sysinternals
 choco upgrade --yes nodejs
 choco upgrade --yes curl
 choco upgrade --yes vscode
-choco upgrade --yes dotpeek --pre
 choco upgrade --yes beyondcompare
 choco upgrade --yes rdm
 choco upgrade --yes dotnet-sdk

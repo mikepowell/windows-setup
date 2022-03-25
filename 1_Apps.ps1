@@ -1,40 +1,44 @@
 # Load some utilities
-. (Join-Path $PSScriptRoot "Utilities.ps1")
+. (Join-Path $PSScriptRoot "..\Utilities.ps1")
 
 # This script must be run as admin
 Assert-Administrator
 
-# It also must be run from PS 5.1, not core.
-if ($PSVersionTable.PSEdition -eq 'Core') {
-  powershell.exe -NoProfile -File $MyInvocation.MyCommand.Path
-  return
-}
-
 # Install applications
-choco upgrade --yes cascadiacodepl
-choco upgrade --yes powershell-core
-choco upgrade --yes discord
-choco upgrade --yes powertoys
-choco upgrade --yes 7zip
-choco upgrade --yes gsudo
-choco upgrade --yes sysinternals
-choco upgrade --yes nodejs
-choco upgrade --yes curl
-choco upgrade --yes vscode
-choco upgrade --yes beyondcompare
-choco upgrade --yes rdm
-choco upgrade --yes dotnet-sdk
-choco upgrade --yes logfusion
-choco upgrade --yes fiddler
+$apps = @(
+  'PowerShell'
+  'Sysinternals Suite'
+  'PowerToys'
+  'Discord'
+  'Inkscape'
+  'paint.net'
+  'Git.Git'
+  '7-zip'
+  'Node.js'
+  'Beyond Compare 4'
+  'Remote Desktop Manager'
+  'Microsoft .NET SDK'
+  'LogFusion'
+  'Telerik.Fiddler.Classic'
+  'FileZilla Client'
+)
 
-# Windows features that are kind of like apps
-Write-Host
-if (!(Get-WindowsOptionalFeature -FeatureName TelnetClient -Online)) {
-  Write-Host 'Installing telnet client...'
-  choco install TelnetClient -source WindowsFeatures
-}
-else {
-  Write-Host 'Telnet client already installed, skipping.'
+foreach ($app in $apps) {
+  $installed = winget list --query "$app"
+  if ($installed -match $app) {
+    Write-Output "App '$app' is already installed."
+  }
+  else {
+    # Prefer the msstore package if available.
+    if ((winget search --query "$app" --source "msstore") -match $app) {
+      Write-Output "Installing app '$app' from msstore."
+      winget install --query "$app" --source msstore --accept-package-agreements --accept-source-agreements
+    }
+    else {
+      Write-Output "Installing app '$app' from winget."
+      winget install --query "$app" --accept-package-agreements --accept-source-agreements
+    }
+  }
 }
 
 # Uninstall bloatware

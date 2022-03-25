@@ -46,6 +46,6 @@ else {
 }
 
 # Install modules used in my profile
-Install-Module -Name oh-my-posh
-Install-Module -Name posh-git
-Install-Module -Name Terminal-Icons
+Install-Module -Name oh-my-posh -Force
+Install-Module -Name posh-git -Force
+Install-Module -Name Terminal-Icons -Force

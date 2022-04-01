@@ -5,9 +5,9 @@ param(
 
 # Assert-Administrator
 
-$terminalLocalState = Join-Path $Env:LOCALAPPDATA 'Packages' 'Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe' 'LocalState'
+$terminalLocalState = Join-Path $Env:LOCALAPPDATA 'Packages' 'Microsoft.WindowsTerminal_8wekyb3d8bbwe' 'LocalState'
 if (!(Test-Path -Path $TerminalLocalState -PathType Container)) {
-  throw 'Windows Terminal Preview is not installed.'
+  throw 'Windows Terminal is not installed.'
 }
 
 $consoleProfiles = Join-Path $env:OneDriveConsumer '\Documents\.ConsoleProfiles'

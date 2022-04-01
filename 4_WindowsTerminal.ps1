@@ -3,8 +3,6 @@ param(
   [switch]$Force
 )
 
-# Assert-Administrator
-
 $terminalLocalState = Join-Path $Env:LOCALAPPDATA 'Packages' 'Microsoft.WindowsTerminal_8wekyb3d8bbwe' 'LocalState'
 if (!(Test-Path -Path $TerminalLocalState -PathType Container)) {
   throw 'Windows Terminal is not installed.'

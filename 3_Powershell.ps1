@@ -49,3 +49,22 @@ else {
 Install-Module -Name oh-my-posh -Force
 Install-Module -Name posh-git -Force
 Install-Module -Name Terminal-Icons -Force
+
+<#
+Untested code, check before running
+
+All this is to work around issues related to onedrive KFM and PowerShellGet installing modules to the user's Documents folder.
+Modules installed on other machines are available due to OneDrive sync, but are not updatable or uninstallable via powershellget.
+
+New-Item -ItemType Directory ~\.powershell\Modules  # will also create the ~\.powershell folder
+New-Item -ItemType Directory ~\.powershell\Scripts
+New-Item -ItemType Directory ~\.windowspowershell\Modules  # will also create the ~\.windowspowershell folder
+New-Item -ItemType Directory ~\.windowspowershell\Scripts
+
+Create junction: (or symlink? junction doesn't require admin elevation but we're already requiring that elsewhere)
+New-Item -ItemType Junction 'C:\Users\mpowell\OneDrive - IIHS-HLDI\Documents\PowerShell\Modules' -Value C:\Users\mpowell\.powershell\Modules
+New-Item -ItemType Junction 'C:\Users\mpowell\OneDrive - IIHS-HLDI\Documents\PowerShell\Scripts' -Value C:\Users\mpowell\.powershell\Scripts
+New-Item -ItemType Junction 'C:\Users\mpowell\OneDrive - IIHS-HLDI\Documents\WindowsPowerShell\Modules' -Value C:\Users\mpowell\.windowspowershell\Modules
+New-Item -ItemType Junction 'C:\Users\mpowell\OneDrive - IIHS-HLDI\Documents\WindowsPowerShell\Scripts' -Value C:\Users\mpowell\.windowspowershell\Scripts
+
+#>

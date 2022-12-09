@@ -1,38 +1,44 @@
-# Load some utilities
-. (Join-Path $PSScriptRoot "..\Utilities.ps1")
-
-# This script must be run as admin
-Assert-Administrator
-
 # Install applications
 $apps = @(
-  'PowerShell'
-  'Sysinternals Suite'
-  'PowerToys'
-  'Discord'
-  'Inkscape'
-  'paint.net'
-  'Git.Git'
-  '7-zip'
-  'Node.js'
-  'Beyond Compare 4'
-  'Remote Desktop Manager'
-  'Microsoft .NET SDK'
-  'LogFusion'
-  'Telerik.Fiddler.Classic'
-  'FileZilla Client'
+  @{ name = 'PowerShell'; id = '9MZ1SNWT0N5D' },
+  @{ name = 'Sysinternals Suite'; id = '9P7KNL5RWT25' },
+  @{ name = 'Mirosoft PowerToys'; id = 'XP89DCGQ3K6VLD' },
+  @{
+    name = 'VS Code'
+    id = ''
+    override = '/SILENT /mergetasks="!runcode,addcontextmenufiles,addcontextmenufolders"'
+  },
+  @{ name = 'Discord'; id = '' },
+  @{ name = 'Inkscape'; id = '' },
+  @{ name = 'paint.net'; id = '' },
+  @{ name = 'Git.Git'; id = '' },
+  @{ name = '7-zip'; id = '' },
+  @{ name = 'Node.js'; id = '' },
+  @{ name = 'Beyond Compare 4'; id = '' },
+  @{ name = 'Remote Desktop Manager'; id = '' },
+  @{ name = 'Microsoft .NET SDK'; id = '' },
+  @{ name = 'LogFusion'; id = '' },
+  @{ name = 'Telerik.Fiddler.Classic'; id = '' },
+  @{ name = 'FileZilla Client'; id = '' }
 )
 
+# This all needs to be rewritten - don't run as-is yet
 foreach ($app in $apps) {
-  $installed = winget list --query "$app"
-  if ($installed -match $app) {
-    Write-Output "App '$app' is already installed."
+  $installed = winget list --id "$($app.id)"
+  if ($installed) {
+    Write-Output "App '$($app.name)' is already installed."
   }
   else {
     # Prefer the msstore package if available.
-    if ((winget search --query "$app" --source "msstore") -match $app) {
-      Write-Output "Installing app '$app' from msstore."
-      winget install --query "$app" --source msstore --accept-package-agreements --accept-source-agreements
+    if (winget search --id "$($app.id)" --source "msstore") {
+      Write-Output "Installing app '$($app.name)' from msstore."
+      if ($app.override) {
+        winget install --id "$($app.id)" --source msstore --exact --accept-package-agreements --accept-source-agreements
+      }
+      else {
+        winget install --id "$($app.id)" --source msstore --exact --accept-package-agreements --accept-source-agreements --override "`'$($app.override)`'"
+      }
+      # winget install Microsoft.VisualStudioCode --override '/SILENT '
     }
     else {
       Write-Output "Installing app '$app' from winget."

@@ -26,45 +26,42 @@ function AddSymlink([string]$path) {
 # Check whether onedrive consumer is installed & signed in yet
 if (!(Test-Path $env:OneDriveConsumer)) {
   Write-Host 'OneDrive (consumer version) must be installed and signed in before Powershell profiles can be created.'
-}
-else {
-  $docs = [Environment]::GetFolderPath("MyDocuments")
-  $wpsProfileDir = "$docs\WindowsPowerShell"
-  $pwshProfileDir = "$docs\PowerShell"
-
-  # Add links for PS 5.1
-  AddSymlink -path "$wpsProfileDir\Microsoft.PowerShell_profile.ps1"
-  AddSymlink -path "$wpsProfileDir\Microsoft.VSCode_profile.ps1"
-  AddSymlink -path "$wpsProfileDir\PSReadlineProfile.ps1"
-  AddSymlink -path "$wpsProfileDir\.oh-my-posh.json"
-
-  # Add links for Core
-  AddSymlink -path "$pwshProfileDir\Microsoft.PowerShell_profile.ps1"
-  AddSymlink -path "$pwshProfileDir\Microsoft.VSCode_profile.ps1"
-  AddSymlink -path "$pwshProfileDir\PSReadlineProfile.ps1"
-  AddSymlink -path "$pwshProfileDir\.oh-my-posh.json"
+  exit
 }
 
-# Install modules used in my profile
-Install-Module -Name oh-my-posh -Force
-Install-Module -Name posh-git -Force
-Install-Module -Name Terminal-Icons -Force
+$docs = [Environment]::GetFolderPath("MyDocuments")
+$wpsProfileDir = "$docs\WindowsPowerShell"
+$pwshProfileDir = "$docs\PowerShell"
 
 <#
 Untested code, check before running
 
 All this is to work around issues related to onedrive KFM and PowerShellGet installing modules to the user's Documents folder.
 Modules installed on other machines are available due to OneDrive sync, but are not updatable or uninstallable via powershellget.
-
+#>
 New-Item -ItemType Directory ~\.powershell\Modules  # will also create the ~\.powershell folder
 New-Item -ItemType Directory ~\.powershell\Scripts
+New-Item -ItemType Junction "$pwshProfileDir\Modules" -Value ~\.powershell\Modules
+New-Item -ItemType Junction "$pwshProfileDir\Scripts" -Value ~\.powershell\Scripts
+
 New-Item -ItemType Directory ~\.windowspowershell\Modules  # will also create the ~\.windowspowershell folder
 New-Item -ItemType Directory ~\.windowspowershell\Scripts
+New-Item -ItemType Junction "$wpsProfileDir\Modules" -Value ~\.windowspowershell\Modules
+New-Item -ItemType Junction "$wpsProfileDir\Scripts" -Value ~\.windowspowershell\Scripts
 
-Create junction: (or symlink? junction doesn't require admin elevation but we're already requiring that elsewhere)
-New-Item -ItemType Junction 'C:\Users\mpowell\OneDrive - IIHS-HLDI\Documents\PowerShell\Modules' -Value C:\Users\mpowell\.powershell\Modules
-New-Item -ItemType Junction 'C:\Users\mpowell\OneDrive - IIHS-HLDI\Documents\PowerShell\Scripts' -Value C:\Users\mpowell\.powershell\Scripts
-New-Item -ItemType Junction 'C:\Users\mpowell\OneDrive - IIHS-HLDI\Documents\WindowsPowerShell\Modules' -Value C:\Users\mpowell\.windowspowershell\Modules
-New-Item -ItemType Junction 'C:\Users\mpowell\OneDrive - IIHS-HLDI\Documents\WindowsPowerShell\Scripts' -Value C:\Users\mpowell\.windowspowershell\Scripts
+# Add links for PS 5.1
+AddSymlink -path "$wpsProfileDir\Microsoft.PowerShell_profile.ps1"
+AddSymlink -path "$wpsProfileDir\Microsoft.VSCode_profile.ps1"
+AddSymlink -path "$wpsProfileDir\PSReadlineProfile.ps1"
+AddSymlink -path "$wpsProfileDir\.oh-my-posh.json"
 
-#>
+# Add links for Core
+AddSymlink -path "$pwshProfileDir\Microsoft.PowerShell_profile.ps1"
+AddSymlink -path "$pwshProfileDir\Microsoft.VSCode_profile.ps1"
+AddSymlink -path "$pwshProfileDir\PSReadlineProfile.ps1"
+AddSymlink -path "$pwshProfileDir\.oh-my-posh.json"
+
+# Install modules used in my profile
+Install-Module -Name oh-my-posh -Force
+Install-Module -Name posh-git -Force
+Install-Module -Name Terminal-Icons -Force
